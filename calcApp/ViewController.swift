@@ -10,35 +10,38 @@ import UIKit
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
-    
+    //履歴用テーブルビュー
     @IBOutlet weak var tv_history: UITableView!
+    //結果表示用ラベル
     @IBOutlet weak var label_disp: UILabel!
 
+    //右側ボタン
     @IBOutlet weak var btn_sub: UIButton!
     @IBOutlet weak var btn_add: UIButton!
     @IBOutlet weak var btn_div: UIButton!
     @IBOutlet weak var btn_times: UIButton!
     @IBOutlet weak var btn_clear: UIButton!
     @IBOutlet weak var btn_ac: UIButton!
+    
+    //左側ボタン
     @IBOutlet weak var btn_9: UIButton!
     @IBOutlet weak var btn_8: UIButton!
     @IBOutlet weak var btn_7: UIButton!
-    
     @IBOutlet weak var btn_6: UIButton!
     @IBOutlet weak var btn_5: UIButton!
     @IBOutlet weak var btn_4: UIButton!
-    
     @IBOutlet weak var btn_3: UIButton!
     @IBOutlet weak var btn_2: UIButton!
     @IBOutlet weak var btn_1: UIButton!
-    
     @IBOutlet weak var btn_0: UIButton!
     @IBOutlet weak var btn_dot: UIButton!
     @IBOutlet weak var btn_eq: UIButton!
     
+    //上部メニューボタン
     @IBOutlet weak var btn_clip: UIButton!
     @IBOutlet weak var btn_histDel: UIButton!
     
+    //レイアウト
     @IBOutlet weak var layout_btn1: UIStackView!
     @IBOutlet weak var layout_btn2: UIStackView!
     @IBOutlet weak var layout_btn3: UIStackView!
@@ -47,18 +50,19 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     @IBOutlet weak var layout_upperMenu: UIStackView!
     
     
-    private var temp:String = ""
-    var dispStr:String = ""
-    var equation:String = ""
+    private var temp:String = ""  //数値用の一時的な文字列 => 演算子orイコール押下時にnumArrayへ格納
+    var dispStr:String = ""   //画面表示向け文字列
+    var equation:String = ""  //イコール押下時の数式整形用
     
-    var btnArray:[UIButton] = [UIButton]()
-    var btnArray2:[UIButton] = [UIButton]()
+    var btnArray:[UIButton] = [UIButton]()  //レイアウト一括適用向けボタン配列
+    var btnArray2:[UIButton] = [UIButton]() //レイアウト一括適用向けボタン配列2
     
-    var numArray:[String] = [String]()
-    var opeArray:[String] = [String]()
+    var numArray:[String] = [String]()  //数字用配列
+    var opeArray:[String] = [String]()  //演算子用配列
     
-    var historyArray:[HistoryData] = [HistoryData]()
+    var historyArray:[HistoryData] = [HistoryData]() //履歴データ用配列
     
+    var minusMode:Bool = false  //マイナスの数値が入力されている場合:true, それ以外:false
     
     
     override func viewDidLoad() {
@@ -125,17 +129,35 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     internal func tappedOperator(sender: UIButton){
         
         if(temp.isEmpty && numArray.count==0){
-            return
+            //初期状態
+            if(sender.tag != 102){
+                //ーキー押下時以外は何もしない
+                return
+            }
+            //ーキー押下時は、マイナスの数値入力を許可させるため、通過OK
         }
+
         
         switch sender.tag {
             case 100:
                 //バックスペースキー
                 if(temp.isEmpty){
+                    //演算子が削除ターゲットとなっている場合
                     dispStr.remove(at: dispStr.index(dispStr.endIndex, offsetBy: -1))
                     opeArray.remove(at: opeArray.count-1)
                     temp = numArray[numArray.count-1]
                     numArray.remove(at: numArray.count-1)
+                    //マイナスモード判定
+                    if(atof(temp)<0){
+                        minusMode = true
+                    }else{
+                        minusMode = false
+                    }
+                }else if(temp == "-" && minusMode){
+                    //マイナスのみ入力されていれば単順に削除＆モード脱出
+                    dispStr.remove(at: dispStr.index(dispStr.endIndex, offsetBy: -1))
+                    temp = ""
+                    minusMode=false
                 }else{
                     dispStr.remove(at: dispStr.index(dispStr.endIndex, offsetBy: -1))
                     temp.remove(at: temp.index(temp.endIndex, offsetBy: -1))
@@ -150,51 +172,90 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             case 101:
                 //＋キー
                 if(temp.isEmpty){
+                    //演算子入力（数字待ち）時に演算子入れ替え
                     dispStr.remove(at: dispStr.index(dispStr.endIndex, offsetBy: -1))
-                }else{
-                    numArray.append(temp)
-                    opeArray.append("+")
-                }
                     dispStr += "+"
                     label_disp.text = dispStr
                     temp = ""
+                }else if(temp == "-" && minusMode){
+                    //マイナスのみ入力されていれば何もしない(数字待ち)
+                }else{
+                    if(minusMode){
+                        minusMode = false
+                    }
+                    numArray.append(temp)
+                    opeArray.append("+")
+                    dispStr += "+"
+                    label_disp.text = dispStr
+                    temp = ""
+                }
+            
             
             case 102:
                 //ーキー
                 if(temp.isEmpty){
-                    dispStr.remove(at: dispStr.index(dispStr.endIndex, offsetBy: -1))
+                    //マイナスの数値入力モードへ
+                    minusMode = true
+
+                    dispStr += "-"
+                    label_disp.text = dispStr
+                    temp = "-"
+                }else if(temp == "-" && minusMode){
+                    //マイナスのみ入力されていれば何もしない(数字待ち)
                 }else{
                     numArray.append(temp)
                     opeArray.append("-")
-                }
+                    
                     dispStr += "-"
                     label_disp.text = dispStr
-                
                     temp = ""
+                }
+            
                 
             case 103:
                 //×キー
                 if(temp.isEmpty){
+                    //演算子入力（数字待ち）時に演算子入れ替え
                     dispStr.remove(at: dispStr.index(dispStr.endIndex, offsetBy: -1))
-                }else{
-                    numArray.append(temp)
-                    opeArray.append("*")
-                }
                     dispStr += "×"
                     label_disp.text = dispStr
                     temp = ""
+                }else if(temp == "-" && minusMode){
+                    //マイナスのみ入力されていれば何もしない(数字待ち)
+                }else{
+                    if(minusMode){
+                        minusMode = false
+                    }
+
+                    numArray.append(temp)
+                    opeArray.append("*")
+                    dispStr += "×"
+                    label_disp.text = dispStr
+                    temp = ""
+                }
+            
 
             case 104:
                 //÷キー
                 if(temp.isEmpty){
+                    //演算子入力（数字待ち）時に演算子入れ替え
                     dispStr.remove(at: dispStr.index(dispStr.endIndex, offsetBy: -1))
-                }else{
-                    numArray.append(temp)
-                    opeArray.append("/")
-                }
                     dispStr += "÷"
                     label_disp.text = dispStr
                     temp = ""
+                }else if(temp == "-" && minusMode){
+                    //マイナスのみ入力されていれば何もしない(数字待ち)
+                }else{
+                    if(minusMode){
+                        minusMode = false
+                    }
+                    numArray.append(temp)
+                    opeArray.append("/")
+                    dispStr += "÷"
+                    label_disp.text = dispStr
+                    temp = ""
+                }
+            
             case 105:
                 //AC(全削除)キー
                 dispStr = ""
@@ -202,6 +263,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 label_disp.text = "0"
                 numArray.removeAll()
                 opeArray.removeAll()
+                minusMode = false
             
             default:
                 break
@@ -233,6 +295,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             label_disp.text = dispStr
             
             temp = String("\(result!)")
+            //マイナスモード判定
+            if(atof(temp)<0){
+                minusMode = true
+            }else{
+                minusMode = false
+            }
             
             numArray.removeAll()
             opeArray.removeAll()
@@ -270,8 +338,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
     }
     
-    
-    
+
     //-----------------------
     // TableView for History
     //-----------------------
@@ -304,7 +371,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         label_disp.text = dispStr
         numArray = selectData.getNumArray()
         temp = numArray[numArray.count-1]
+        numArray.remove(at: numArray.count-1)
         opeArray = selectData.getOpeArray()
+        
+        //マイナスモード判定
+        if(atof(temp)<0){
+            minusMode = true
+        }else{
+            minusMode = false
+        }
         
         //選択以降の履歴削除
         var max = historyArray.count
@@ -463,7 +538,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             }
         }
         
-        //オペランドボタンレイアウト制御
+        //オペレータボタンレイアウト制御
         var v_ope:Int = 0
         var h_ope:Int = 0
         
