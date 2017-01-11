@@ -66,9 +66,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     var floatMode:Bool = false  //小数の数値が入力されている場合:true, それ以外:false (2つ以上小数を入力させない)
     
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
         
         //数値表示初期化
         dispStr = "0"
@@ -88,7 +90,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         //レイアウトの調整
         setLayout()
     }
-    
     
     
 
@@ -545,33 +546,35 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         // レイアウトパラメータ
         //------------------
         //左の数字キーの高さ
-        let leftBtnHeight:Int = Int(DeviceSize.screenHeight()/7)-5
+        let leftBtnHeight:Int = Int(DeviceSize.screenHeight()/8)
         //左の数字キーの幅
         let leftBtnWidth:Int = Int(DeviceSize.screenWidth()/4)-5
         //左の数字キーの縦マージン
         let marginTop_leftBtn:Int = 5
         
         //演算ボタンの高さ(AC以外)
-        let rightBtnHeight:Int = Int(DeviceSize.screenHeight()/10)-5
+        let rightBtnHeight:Int = Int(DeviceSize.screenHeight()/11)-5
         //演算ボタンの高さ(ACのみ)
         let rightBtnHeight_ac:Int = Int(DeviceSize.screenHeight()/15)
         //演算ボタンの縦マージン
         let marginTop_rightBtn:Int = 5
         
         //上部メニューの高さ
-        let upperMenuHeight:Int = Int(DeviceSize.screenHeight()/18)
+        let upperMenuHeight:Int = Int(DeviceSize.screenHeight()/20)
         //履歴テーブルビューの高さ
         let historyViewHeight:Int = Int(DeviceSize.screenHeight()/5)
         //計算結果ビューの高さ
-        let labelViewHeight:Int = Int(DeviceSize.screenHeight()/8)
+        let labelViewHeight:Int = Int(DeviceSize.screenHeight()/9)
         
         
         
         //縦レイアウト制御
         var h_tmp:Int = 0
         layout_upperMenu.translatesAutoresizingMaskIntoConstraints = true
-        layout_upperMenu.frame = CGRect(x:0, y:Int(DeviceSize.statusBarHeight()), width:DeviceSize.screenWidth(), height:upperMenuHeight);
-        h_tmp = Int(DeviceSize.statusBarHeight()) + upperMenuHeight
+        //layout_upperMenu.frame = CGRect(x:0, y:Int(DeviceSize.statusBarHeight()), width:DeviceSize.screenWidth(), height:upperMenuHeight);
+        layout_upperMenu.frame = CGRect(x:0, y:5, width:DeviceSize.screenWidth(), height:upperMenuHeight);
+        //h_tmp = Int(DeviceSize.statusBarHeight()) + upperMenuHeight
+        h_tmp = 5 + upperMenuHeight
         
         tv_history.translatesAutoresizingMaskIntoConstraints = true
         tv_history.frame = CGRect(x:0, y:h_tmp, width:DeviceSize.screenWidth(), height:historyViewHeight);
